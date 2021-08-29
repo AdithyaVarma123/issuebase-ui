@@ -6,11 +6,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import SettingsIcon from '@material-ui/icons/Settings';
 import BugReportIcon from '@material-ui/icons/BugReport';
 import EqualizerIcon from '@material-ui/icons/Equalizer';
+import HomeIcon from '@material-ui/icons/Home';
 import {makeStyles} from '@material-ui/core/styles';
 import {
     alpha,
     AppBar, Avatar, IconButton, createStyles, Divider, Drawer, Hidden, InputBase, List, ListItem, ListItemIcon,
-    ListItemText, Menu, MenuItem, Switch, Theme, Toolbar, Typography, FormControlLabel, FormGroup, useTheme
+    ListItemText, Menu, MenuItem, Switch, Theme, Toolbar, Typography, FormControlLabel, FormGroup, useTheme, Button
 } from '@material-ui/core';
 import {useDispatch, useSelector} from 'react-redux';
 import {toggleTheme} from '../actions/theme';
@@ -169,6 +170,11 @@ export default function ResponsiveDrawer() {
     });
     const pages = [
         {
+            route: '/home',
+            name: 'Home',
+            icon: <HomeIcon />
+        },
+        {
             route: '/projects',
             name: 'Projects',
             icon: <EqualizerIcon className={classes.rotateEqualizerIcon}/>,
@@ -219,7 +225,6 @@ export default function ResponsiveDrawer() {
             </FormGroup>
         </div>
     );
-
 
     return (
         <div className={classes.root}>

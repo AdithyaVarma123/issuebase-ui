@@ -12,6 +12,10 @@ export default function PageTitle() {
         {
             path: '/create-project',
             title: 'Create project'
+        },
+        {
+            path: '/',
+            title: 'Home'
         }
     ];
 
