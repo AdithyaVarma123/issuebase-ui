@@ -21,7 +21,8 @@ import {
 	Theme,
 	Typography,
 	Container,
-	Chip
+	Chip,
+	Button
 } from '@material-ui/core';
 import {Pagination} from '@material-ui/lab';
 import {connect} from 'react-redux';
@@ -58,11 +59,17 @@ const styles = (theme: Theme) => ({
 	search: {
 		display:'flex',
 		border:'2px solid white',
-		borderRadius:10
+		borderRadius:10,
+		justifyContent:'right'
 	},
 	searchIcon: {
 		margin:'1em'
 	},
+	searchButton: {
+		justifyContent:'right',
+		mt:10,
+		padding:'10px'
+	}
 });
 
 const mapStateToProps = (state: { auth: any; }) => ({
@@ -112,6 +119,7 @@ class Issue extends React.Component {
 								<SearchIcon />
 							</div>
 							<InputBase
+								fullWidth
 								placeholder="Search…"
 								classes={{
 									root: classes.inputRoot,
@@ -119,6 +127,9 @@ class Issue extends React.Component {
 								}}
 								inputProps={{ 'aria-label': 'search' }}
 							/>
+							<Button className='searchButton'>
+								Go
+							</Button>
 						</div>
 						<List>
 							{this.state.issues.map(item => (
