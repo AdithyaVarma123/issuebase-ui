@@ -6,6 +6,10 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import FaceIcon from '@material-ui/icons/Face';
+import SearchIcon from '@material-ui/icons/Search';
+import InputBase from '@material-ui/core/InputBase';
+import ErrorIcon from '@material-ui/icons/Error';
 import {
 	Badge,
 	Card,
@@ -16,7 +20,8 @@ import {
 	IconButton,
 	Theme,
 	Typography,
-	Container
+	Container,
+	Chip
 } from '@material-ui/core';
 import {Pagination} from '@material-ui/lab';
 import {connect} from 'react-redux';
@@ -24,6 +29,9 @@ import BugReportIcon from '@material-ui/icons/BugReport';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 const styles = (theme: Theme) => ({
+	chip: {
+		margin: theme.spacing(0.5),
+	},
 	spinner: {
 		display: 'flex',
 		justifyContent: 'center'
@@ -46,7 +54,15 @@ const styles = (theme: Theme) => ({
 	pagination: {
 		display: 'flex',
 		justifyContent: 'center'
-	}
+	},
+	search: {
+		display:'flex',
+		border:'2px solid white',
+		borderRadius:10
+	},
+	searchIcon: {
+		margin:'1em'
+	},
 });
 
 const mapStateToProps = (state: { auth: any; }) => ({
@@ -91,6 +107,19 @@ class Issue extends React.Component {
 					</div>
 				) : (
 					<Container maxWidth='md'>
+						<div className={classes.search}>
+							<div className={classes.searchIcon}>
+								<SearchIcon />
+							</div>
+							<InputBase
+								placeholder="Search…"
+								classes={{
+									root: classes.inputRoot,
+									input: classes.inputInput,
+								}}
+								inputProps={{ 'aria-label': 'search' }}
+							/>
+						</div>
 						<List>
 							{this.state.issues.map(item => (
 								<ListItem>
@@ -100,7 +129,19 @@ class Issue extends React.Component {
 										</Avatar>
 									</ListItemAvatar>
 									<ListItemText primary={item.name} secondary={item.head} />
-									<ListItemSecondaryAction>
+									<ListItemSecondaryAction className='chip'>
+										<Chip className={classes.chip}
+											icon={<FaceIcon />}
+											label='multiple users'
+											clickable
+											color="primary"
+										/>
+										<Chip className={classes.chip}
+											icon={<ErrorIcon />}
+											label="high priority"
+											clickable
+											color="secondary"
+										/>
 										<IconButton edge="end" aria-label="delete">
 											<ChevronRightIcon />
 										</IconButton>
