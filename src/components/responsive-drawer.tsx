@@ -19,6 +19,7 @@ import {showAlert} from '../actions/alert';
 import {Route, BrowserRouter, Switch as RouterSwitch, Link} from 'react-router-dom';
 import {useGoogleLogout} from 'react-google-login';
 import Project from '../pages/projects/projects';
+import Issue from "../pages/issues/issues";
 
 const drawerWidth = 200;
 
@@ -297,7 +298,7 @@ export default function ResponsiveDrawer() {
                             <Project />
                         </Route>
                         <Route path="/issues">
-                            issues
+                            <Issue />
                         </Route>
                         <Route path="/assigned">
                             assigned
