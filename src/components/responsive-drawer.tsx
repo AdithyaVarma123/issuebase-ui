@@ -20,6 +20,9 @@ import {Route, BrowserRouter, Switch as RouterSwitch, Link} from 'react-router-d
 import {useGoogleLogout} from 'react-google-login';
 import Project from '../pages/projects/projects';
 import Issue from "../pages/issues/issues";
+import PageMenu from './page-menu';
+import CreateProject from '../pages/projects/create-project';
+import PageTitle from './page-title';
 
 const drawerWidth = 200;
 
@@ -119,7 +122,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function ResponsiveDrawer() {
     // @ts-ignore
     const { auth, theme } = useSelector((state) => state);
-    console.log(auth);
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -186,7 +188,7 @@ export default function ResponsiveDrawer() {
             name: 'Settings',
             icon: <SettingsIcon/>,
         }
-    ]
+    ];
     const drawer = (
         <div>
             <div className={clsx(classes.toolbar, classes.center)}>
@@ -221,46 +223,49 @@ export default function ResponsiveDrawer() {
 
     return (
         <div className={classes.root}>
-            <AppBar position="fixed" className={classes.appBar}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        className={classes.menuButton}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap className={classes.title}></Typography>
-                    <div className={classes.search}>
-                        <div className={classes.searchIcon}>
-                            <SearchIcon />
-                        </div>
-                        <InputBase
-                            placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
-                            inputProps={{ 'aria-label': 'search' }}
-                        />
-                    </div>
-                    <IconButton onClick={avatarMenu} aria-controls="avatar-menu" aria-haspopup="true" className={classes.marginY}>
-                        <Avatar src={auth.user.imageUrl} />
-                    </IconButton>
-                    <Menu
-                        id="avatar-menu"
-                        anchorEl={anchorEl}
-                        keepMounted
-                        open={Boolean(anchorEl)}
-                        onClose={removeElement}
-                    >
-                        <MenuItem onClick={signOut}>Logout</MenuItem>
-                    </Menu>
-                </Toolbar>
-            </AppBar>
             <BrowserRouter>
+                <AppBar position="fixed" className={classes.appBar}>
+                    <Toolbar>
+                        <IconButton
+                            color="inherit"
+                            aria-label="open drawer"
+                            edge="start"
+                            onClick={handleDrawerToggle}
+                            className={classes.menuButton}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography variant="h6" noWrap className={classes.title}>
+                            <PageTitle />
+                        </Typography>
+                        <div className={classes.search}>
+                            <div className={classes.searchIcon}>
+                                <SearchIcon />
+                            </div>
+                            <InputBase
+                                placeholder="Search…"
+                                classes={{
+                                    root: classes.inputRoot,
+                                    input: classes.inputInput,
+                                }}
+                                inputProps={{ 'aria-label': 'search' }}
+                            />
+                        </div>
+                        <IconButton onClick={avatarMenu} aria-controls="avatar-menu" aria-haspopup="true" className={classes.marginY}>
+                            <Avatar src={auth.user.imageUrl} />
+                        </IconButton>
+                        <Menu
+                            id="avatar-menu"
+                            anchorEl={anchorEl}
+                            keepMounted
+                            open={Boolean(anchorEl)}
+                            onClose={removeElement}
+                        >
+                            <PageMenu close={removeElement}/>
+                            <MenuItem onClick={signOut}>Logout</MenuItem>
+                        </Menu>
+                    </Toolbar>
+                </AppBar>
                 <nav className={classes.drawer} aria-label="mailbox folders">
                     {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                     <Hidden smUp implementation="css">
@@ -305,6 +310,9 @@ export default function ResponsiveDrawer() {
                         </Route>
                         <Route path="/settings">
                             settings
+                        </Route>
+                        <Route path="/create-project">
+                            <CreateProject/>
                         </Route>
                     </RouterSwitch>
                 </main>

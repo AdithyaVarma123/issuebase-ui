@@ -104,7 +104,6 @@ function Login() {
 
     const handleSocialLogin = async (user: any) => {
         const res = await fetch(`https://github.com/login/oauth/${user.code}`);
-        console.log(res);
         return;
         dispatch(githubOAuthLogin(user));
         dispatch(
