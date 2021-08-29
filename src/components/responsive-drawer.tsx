@@ -1,25 +1,32 @@
 import React from 'react';
 import clsx from 'clsx';
 import MenuIcon from '@material-ui/icons/Menu';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import SearchIcon from '@material-ui/icons/Search';
+import SettingsIcon from '@material-ui/icons/Settings';
+import BugReportIcon from '@material-ui/icons/BugReport';
+import EqualizerIcon from '@material-ui/icons/Equalizer';
 import {makeStyles} from '@material-ui/core/styles';
 import {
     alpha,
-    AppBar, Avatar, IconButton, Button, createStyles, Divider, Drawer, Hidden, InputBase, List, ListItem, ListItemIcon,
-    ListItemText, Menu, MenuItem, Switch, Theme, Toolbar, Typography, FormControlLabel, FormGroup
+    AppBar, Avatar, IconButton, createStyles, Divider, Drawer, Hidden, InputBase, List, ListItem, ListItemIcon,
+    ListItemText, Menu, MenuItem, Switch, Theme, Toolbar, Typography, FormControlLabel, FormGroup, useTheme
 } from '@material-ui/core';
 import {useDispatch, useSelector} from 'react-redux';
 import {toggleTheme} from '../actions/theme';
-import {googleOAuthLogin, googleOAuthLogout} from '../actions/google-oauth';
+import {googleOAuthLogout} from '../actions/google-oauth';
 import {showAlert} from '../actions/alert';
+import {Route, BrowserRouter, Switch as RouterSwitch, Link} from 'react-router-dom';
 import {useGoogleLogout} from 'react-google-login';
+import Project from '../pages/projects/projects';
 
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        rotateEqualizerIcon: {
+            transform: 'rotate(180deg)'
+        },
         root: {
             display: 'flex',
         },
@@ -101,15 +108,18 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         marginY: {
             marginLeft: '1em'
+        },
+        linkItem: {
+            color: theme.palette.text.primary
         }
     }),
 );
 
 export default function ResponsiveDrawer() {
-    const classes = useStyles();
     // @ts-ignore
     const { auth, theme } = useSelector((state) => state);
     console.log(auth);
+    const classes = useStyles();
     const dispatch = useDispatch();
 
     const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -154,7 +164,28 @@ export default function ResponsiveDrawer() {
         clientId: "349792543381-qee13qjia4l0iddd6bu7d29mi88qmm6s.apps.googleusercontent.com",
         isSignedIn: true
     });
-
+    const pages = [
+        {
+            route: '/projects',
+            name: 'Projects',
+            icon: <EqualizerIcon className={classes.rotateEqualizerIcon}/>,
+        },
+        {
+            route: '/issues',
+            name: 'Issues',
+            icon: <BugReportIcon/>,
+        },
+        {
+            route: '/assigned',
+            name: 'Assignments',
+            icon: <AssignmentIcon/>,
+        },
+        {
+            route: '/settings',
+            name: 'Settings',
+            icon: <SettingsIcon/>,
+        }
+    ]
     const drawer = (
         <div>
             <div className={clsx(classes.toolbar, classes.center)}>
@@ -162,19 +193,10 @@ export default function ResponsiveDrawer() {
             </div>
             <Divider />
             <List>
-                {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                    <ListItem button key={text}>
-                        <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                        <ListItemText primary={text} />
-                    </ListItem>
-                ))}
-            </List>
-            <Divider />
-            <List>
-                {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                    <ListItem button key={text}>
-                        <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-                        <ListItemText primary={text} />
+                {pages.map((item) => (
+                    <ListItem key={item.route} component={Link} to={item.route} className={classes.linkItem}>
+                        <ListItemIcon>{item.icon}</ListItemIcon>
+                        <ListItemText primary={item.name} />
                     </ListItem>
                 ))}
             </List>
@@ -237,39 +259,55 @@ export default function ResponsiveDrawer() {
                     </Menu>
                 </Toolbar>
             </AppBar>
-            <nav className={classes.drawer} aria-label="mailbox folders">
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-                <Hidden smUp implementation="css">
-                    <Drawer
-                        variant="temporary"
-                        anchor="left"
-                        open={mobileOpen}
-                        onClose={handleDrawerToggle}
-                        classes={{
-                            paper: classes.drawerPaper,
-                        }}
-                        ModalProps={{
-                            keepMounted: true, // Better open performance on mobile.
-                        }}
-                    >
-                        {drawer}
-                    </Drawer>
-                </Hidden>
-                <Hidden xsDown implementation="css">
-                    <Drawer
-                        classes={{
-                            paper: classes.drawerPaper,
-                        }}
-                        variant="permanent"
-                        open
-                    >
-                        {drawer}
-                    </Drawer>
-                </Hidden>
-            </nav>
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-            </main>
+            <BrowserRouter>
+                <nav className={classes.drawer} aria-label="mailbox folders">
+                    {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+                    <Hidden smUp implementation="css">
+                        <Drawer
+                            variant="temporary"
+                            anchor="left"
+                            open={mobileOpen}
+                            onClose={handleDrawerToggle}
+                            classes={{
+                                paper: classes.drawerPaper,
+                            }}
+                            ModalProps={{
+                                keepMounted: true, // Better open performance on mobile.
+                            }}
+                        >
+                            {drawer}
+                        </Drawer>
+                    </Hidden>
+                    <Hidden xsDown implementation="css">
+                        <Drawer
+                            classes={{
+                                paper: classes.drawerPaper,
+                            }}
+                            variant="permanent"
+                            open
+                        >
+                            {drawer}
+                        </Drawer>
+                    </Hidden>
+                </nav>
+                <main className={classes.content}>
+                    <div className={classes.toolbar} />
+                    <RouterSwitch>
+                        <Route path="/projects">
+                            <Project />
+                        </Route>
+                        <Route path="/issues">
+                            issues
+                        </Route>
+                        <Route path="/assigned">
+                            assigned
+                        </Route>
+                        <Route path="/settings">
+                            settings
+                        </Route>
+                    </RouterSwitch>
+                </main>
+            </BrowserRouter>
         </div>
     );
 }

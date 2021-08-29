@@ -7,6 +7,11 @@ import {CssBaseline} from '@material-ui/core';
 import Alert from './components/alert';
 import ResponsiveDrawer from './components/responsive-drawer';
 import Login from './components/login';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route
+} from "react-router-dom";
 
 const useStyles = makeStyles({
     root: {
