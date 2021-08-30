@@ -23,6 +23,7 @@ import Project from '../pages/projects/projects';
 import Issue from "../pages/issues/issues";
 import PageMenu from './page-menu';
 import CreateProject from '../pages/projects/create-project';
+import CreateIssue from '../pages/issues/create-issue';
 import PageTitle from './page-title';
 
 const drawerWidth = 200;
@@ -168,6 +169,7 @@ export default function ResponsiveDrawer() {
         clientId: "349792543381-qee13qjia4l0iddd6bu7d29mi88qmm6s.apps.googleusercontent.com",
         isSignedIn: true
     });
+
     const pages = [
         {
             route: '/home',
@@ -195,6 +197,38 @@ export default function ResponsiveDrawer() {
             icon: <SettingsIcon/>,
         }
     ];
+
+    const routes = [
+        {
+            path: '/home',
+            component: <h1>Home</h1>
+        },
+        {
+            path: '/projects',
+            component: <Project />
+        },
+        {
+            path: '/issues',
+            component: <Issue />
+        },
+        {
+            path: '/assigned',
+            component: <h1>Assigned</h1>
+        },
+        {
+            path: '/settings',
+            component: <h1>Settings</h1>
+        },
+        {
+            path: '/create-project',
+            component: <CreateProject />
+        },
+        {
+            path: '/create-issue',
+            component: <CreateIssue />
+        }
+    ]
+
     const drawer = (
         <div>
             <div className={clsx(classes.toolbar, classes.center)}>
@@ -304,21 +338,7 @@ export default function ResponsiveDrawer() {
                 <main className={classes.content}>
                     <div className={classes.toolbar} />
                     <RouterSwitch>
-                        <Route path="/projects">
-                            <Project />
-                        </Route>
-                        <Route path="/issues">
-                            <Issue />
-                        </Route>
-                        <Route path="/assigned">
-                            assigned
-                        </Route>
-                        <Route path="/settings">
-                            settings
-                        </Route>
-                        <Route path="/create-project">
-                            <CreateProject/>
-                        </Route>
+                        {routes.map(route => (<Route path={route.path}>{route.component}</Route>))}
                     </RouterSwitch>
                 </main>
             </BrowserRouter>

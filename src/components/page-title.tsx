@@ -14,6 +14,10 @@ export default function PageTitle() {
             title: 'Create project'
         },
         {
+            path: '/create-issue',
+            title: 'Create issue'
+        },
+        {
             path: '/',
             title: 'Home'
         }

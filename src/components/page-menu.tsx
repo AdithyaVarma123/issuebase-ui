@@ -16,6 +16,15 @@ export default function PageMenu(props: any) {
                     path: '/create-project'
                 }
             ]
+        },
+        {
+            path: '/issues',
+            items: [
+                {
+                    name: 'Create issue',
+                    path: '/create-issue'
+                }
+            ]
         }
     ]
 
