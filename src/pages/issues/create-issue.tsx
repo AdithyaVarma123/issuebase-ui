@@ -1,10 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Button, Chip, createStyles, Grid, IconButton, Paper, TextField, Theme} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import {makeStyles} from '@material-ui/core/styles';
 import {showAlert} from '../../actions/alert';
 import {useHistory} from 'react-router-dom';
-import {useDispatch} from 'react-redux';
+import Yamde from 'yamde';
+import {useDispatch, useSelector} from 'react-redux';
 import DropzoneDialogComponent from '../../components/dropzone-dialog';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,6 +46,9 @@ export default function CreateIssue() {
     const dispatch = useDispatch();
     let [stateFiles, setStateFiles] = React.useState<File[]>([]);
     const assigned = ["ksindell0@cocolog-nifty.com","bstroban1@usgs.gov","kdavidovsky2@woothemes.com"];
+    const [text, setText] = useState('')
+    // @ts-ignore
+    const { theme } = useSelector((state) => state);
 
     function submitForm() {
         history.push('/issues');
@@ -64,6 +68,16 @@ export default function CreateIssue() {
                 </Grid>
                 <Grid item xs={4}>
                     <TextField id="repo-commit-ref" label="Commit ref" variant="outlined" className={classes.standardInput}/>
+                </Grid>
+                <Grid item xs={2} />
+                <Grid item xs={2} />
+                <Grid item xs={8}>
+                    <TextField id="titsle" label="Issue title" variant="outlined" className={classes.standardInput}/>
+                </Grid>
+                <Grid item xs={2} />
+                <Grid item xs={2} />
+                <Grid item xs={8}>
+                    <Yamde value={text} handler={setText} theme={theme.palette.type} />
                 </Grid>
                 <Grid item xs={2} />
                 <Grid item xs={2} />
