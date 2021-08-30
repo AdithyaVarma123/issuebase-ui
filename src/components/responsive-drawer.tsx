@@ -25,6 +25,7 @@ import PageMenu from './page-menu';
 import CreateProject from '../pages/projects/create-project';
 import CreateIssue from '../pages/issues/create-issue';
 import PageTitle from './page-title';
+import UserSettings from "../pages/user-settings";
 
 const drawerWidth = 200;
 
@@ -217,7 +218,7 @@ export default function ResponsiveDrawer() {
         },
         {
             path: '/settings',
-            component: <h1>Settings</h1>
+            component: <UserSettings />
         },
         {
             path: '/create-project',
@@ -339,6 +340,21 @@ export default function ResponsiveDrawer() {
                     <div className={classes.toolbar} />
                     <RouterSwitch>
                         {routes.map(route => (<Route path={route.path}>{route.component}</Route>))}
+                        <Route path="/projects">
+                            <Project />
+                        </Route>
+                        <Route path="/issues">
+                            <Issue />
+                        </Route>
+                        <Route path="/assigned">
+                            assigned
+                        </Route>
+                        <Route path="/settings">
+                            <UserSettings />
+                        </Route>
+                        <Route path="/create-project">
+                            <CreateProject/>
+                        </Route>
                     </RouterSwitch>
                 </main>
             </BrowserRouter>
