@@ -3,6 +3,8 @@ import {makeStyles} from '@material-ui/core/styles';
 import {createStyles, Grid, Paper, TextField, Theme, Chip, Button, IconButton} from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import {useHistory} from 'react-router-dom';
+import {useDispatch} from 'react-redux';
+import {showAlert} from '../../actions/alert';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -39,10 +41,13 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function CreateProject() {
     const classes = useStyles();
     const history = useHistory();
+    const dispatch = useDispatch();
+
     const members = ["ksindell0@cocolog-nifty.com","bstroban1@usgs.gov","kdavidovsky2@woothemes.com","ybisp3@jiathis.com","fducket4@washington.edu","bdegogay5@csmonitor.com"];
 
     function submitForm() {
-        history.push('/');
+        history.push('/projects');
+        dispatch(showAlert({ message: 'Project created!' }));
     }
 
     return (
@@ -63,7 +68,7 @@ export default function CreateProject() {
                             <Chip label={member} className={classes.userChip} onDelete={() => {}}/>
                         ))}
                         <div className={classes.userSelection}>
-                            <TextField id="member-email" label="Add project member" variant="outlined" className={classes.userSelectionInput}/>
+                            <TextField id="member-email" label="Assign " variant="outlined" className={classes.userSelectionInput}/>
                             <IconButton>
                                 <AddCircleIcon/>
                             </IconButton>
