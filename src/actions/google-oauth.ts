@@ -1,4 +1,4 @@
-import { SIGN_IN, SIGN_OUT } from '../types';
+import {SIGN_IN, SIGN_OUT} from '../types';
 
 export const googleOAuthLogin = (response: { error: any; }) => {
     const action = { type: SIGN_IN };
@@ -15,6 +15,5 @@ export const googleOAuthLogin = (response: { error: any; }) => {
 };
 
 export const googleOAuthLogout = () => {
-    const action = { type: SIGN_OUT };
-    return action;
+    return {type: SIGN_OUT};
 };
