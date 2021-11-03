@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import PopupWindow from './popup'
 import { toQuery } from './util';
 import {GoMarkGithub} from 'react-icons/go';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 
 class LoginGithub extends Component {
     static propTypes = {
@@ -42,9 +42,9 @@ class LoginGithub extends Component {
             redirect_uri: redirectUri,
         });
 
-        // To fix issues with window.screen in multi-monitor setups, the easier option is to
-        // center the pop-up over the parent window.
+        // @ts-ignore
         const top = window.top.outerHeight / 2 + window.top.screenY - (popupHeight / 2);
+        // @ts-ignore
         const left = window.top.outerWidth / 2 + window.top.screenX - (popupWidth / 2);
 
         // @ts-ignore

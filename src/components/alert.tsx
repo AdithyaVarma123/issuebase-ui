@@ -1,6 +1,6 @@
 import React from 'react';
-import { Snackbar, IconButton } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Snackbar, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearAlert } from '../actions/alert';
 

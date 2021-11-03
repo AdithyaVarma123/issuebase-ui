@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {Button, Chip, createStyles, Grid, IconButton, Paper, TextField, Theme} from '@material-ui/core';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import {makeStyles} from '@material-ui/core/styles';
+import { Button, Chip, Grid, IconButton, Paper, TextField, Theme } from '@mui/material';
+import createStyles from '@mui/styles/createStyles';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import makeStyles from '@mui/styles/makeStyles';
 import {showAlert} from '../../actions/alert';
 import {useHistory} from 'react-router-dom';
 import Yamde from 'yamde';
@@ -77,7 +78,7 @@ export default function CreateIssue() {
                 <Grid item xs={2} />
                 <Grid item xs={2} />
                 <Grid item xs={8}>
-                    <Yamde value={text} handler={setText} theme={theme.palette.type} />
+                    <Yamde value={text} handler={setText} theme={theme.palette.mode} />
                 </Grid>
                 <Grid item xs={2} />
                 <Grid item xs={2} />
@@ -88,7 +89,7 @@ export default function CreateIssue() {
                         ))}
                         <div className={classes.userSelection}>
                             <TextField id="assigned-email" label="Assign users" variant="outlined" className={classes.userSelectionInput}/>
-                            <IconButton>
+                            <IconButton size="large">
                                 <AddCircleIcon/>
                             </IconButton>
                         </div>
@@ -112,5 +113,5 @@ export default function CreateIssue() {
                 </Grid>
             </Grid>
         </div>
-    )
+    );
 }

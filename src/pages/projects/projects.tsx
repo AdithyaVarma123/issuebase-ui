@@ -1,5 +1,5 @@
 import React from 'react';
-import {withStyles} from '@material-ui/core/styles';
+import withStyles from '@mui/styles/withStyles';
 import {
     Badge,
     Card,
@@ -10,11 +10,11 @@ import {
     IconButton,
     Theme,
     Typography
-} from '@material-ui/core';
-import {Pagination} from '@material-ui/lab';
+} from '@mui/material';
+import { Pagination } from '@mui/material';
 import {connect} from 'react-redux';
-import BugReportIcon from '@material-ui/icons/BugReport';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import BugReportIcon from '@mui/icons-material/BugReport';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const styles = (theme: Theme) => ({
     spinner: {
@@ -96,12 +96,12 @@ class Project extends React.Component {
                                     </div>
                                 </CardContent>
                                 <CardActions disableSpacing>
-                                    <IconButton>
+                                    <IconButton size="large">
                                         <Badge badgeContent={item.issues} max={10000} color="secondary">
                                             <BugReportIcon />
                                         </Badge>
                                     </IconButton>
-                                    <IconButton aria-label="Go to project" className={classes.btn}>
+                                    <IconButton aria-label="Go to project" className={classes.btn} size="large">
                                         <ChevronRightIcon />
                                     </IconButton>
                                 </CardActions>
@@ -113,7 +113,7 @@ class Project extends React.Component {
                     <Pagination count={10} color="secondary" onChange={this.setPage}/>
                 </div>
             </div>
-        )
+        );
     }
 }
 

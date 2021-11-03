@@ -1,6 +1,6 @@
 import React from 'react';
 import {useHistory, useLocation} from 'react-router-dom';
-import {MenuItem} from '@material-ui/core';
+import {MenuItem} from '@mui/material';
 
 export default function PageMenu(props: any) {
     const location = useLocation();

@@ -1,15 +1,15 @@
 import React from 'react';
-import {withStyles} from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import FaceIcon from '@material-ui/icons/Face';
-import SearchIcon from '@material-ui/icons/Search';
-import InputBase from '@material-ui/core/InputBase';
-import ErrorIcon from '@material-ui/icons/Error';
+import withStyles from '@mui/styles/withStyles';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import FaceIcon from '@mui/icons-material/Face';
+import SearchIcon from '@mui/icons-material/Search';
+import InputBase from '@mui/material/InputBase';
+import ErrorIcon from '@mui/icons-material/Error';
 import {
 	Badge,
 	Card,
@@ -23,11 +23,11 @@ import {
 	Container,
 	Chip,
 	Button
-} from '@material-ui/core';
-import {Pagination} from '@material-ui/lab';
+} from '@mui/material';
+import { Pagination } from '@mui/material';
 import {connect} from 'react-redux';
-import BugReportIcon from '@material-ui/icons/BugReport';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import BugReportIcon from '@mui/icons-material/BugReport';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const styles = (theme: Theme) => ({
 	chip: {
@@ -107,7 +107,7 @@ class Issue extends React.Component {
 		// @ts-ignore
 		const { classes } = this.props;
 		return (
-			<div>
+            <div>
 				{this.state.loading ? (
 					<div className={classes.spinner}>
 						<CircularProgress/>
@@ -153,7 +153,7 @@ class Issue extends React.Component {
 											clickable
 											color="secondary"
 										/>
-										<IconButton edge="end" aria-label="delete">
+										<IconButton edge="end" aria-label="delete" size="large">
 											<ChevronRightIcon />
 										</IconButton>
 									</ListItemSecondaryAction>
@@ -167,7 +167,7 @@ class Issue extends React.Component {
 					<Pagination count={10} color="secondary" onChange={this.setPage}/>
 				</div>
 			</div>
-		)
+        );
 	}
 }
 

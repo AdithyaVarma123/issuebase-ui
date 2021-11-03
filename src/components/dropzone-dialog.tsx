@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import {DropzoneDialog} from 'material-ui-dropzone'
-import Button from '@material-ui/core/Button';
+import Button from '@mui/material/Button';
 
 export default class DropzoneDialogComponent extends Component {
     state: { open: boolean; files: File[] };
@@ -55,15 +54,15 @@ export default class DropzoneDialogComponent extends Component {
         return (
             <div>
                 <Button onClick={this.handleOpen.bind(this)} variant="contained">{this.props.buttonText}</Button>
-                <DropzoneDialog
-                    open={this.state.open}
-                    onSave={this.handleSave.bind(this)}
-                    acceptedFiles={this.props.acceptedFiles}
-                    showPreviews={true}
-                    maxFileSize={this.props.maxFileSize}
-                    onClose={this.handleClose.bind(this)}
-                    initialFiles={this.state.files}
-                />
+                {/*<DropzoneDialog*/}
+                {/*    open={this.state.open}*/}
+                {/*    onSave={this.handleSave.bind(this)}*/}
+                {/*    acceptedFiles={this.props.acceptedFiles}*/}
+                {/*    showPreviews={true}*/}
+                {/*    maxFileSize={this.props.maxFileSize}*/}
+                {/*    onClose={this.handleClose.bind(this)}*/}
+                {/*    initialFiles={this.state.files}*/}
+                {/*/>*/}
             </div>
         );
     }

@@ -1,4 +1,5 @@
-import { SIGN_IN, SIGN_OUT } from '../types';
+import {AUTO_LOGIN, SIGN_IN, SIGN_OUT} from '../types';
+import {Cookie} from './cookie';
 
 const INITIAL_STATE = {
     loggedIn: false,
@@ -6,6 +7,7 @@ const INITIAL_STATE = {
 };
 
 const authReducer = (state = INITIAL_STATE, action: {
+    mode: 'google' | 'github' | 'oauth';
     tokens: {
         access_token: string,
         id_token: string,
@@ -17,7 +19,8 @@ const authReducer = (state = INITIAL_STATE, action: {
             let loggedIn = action.payload ? true : false;
 
             if (loggedIn) {
-                document.cookie = JSON.stringify(action.tokens);
+                Cookie.remove(AUTO_LOGIN);
+                Cookie.set(AUTO_LOGIN, JSON.stringify({ method: action.mode, tokens: action.tokens}), new Date(new Date().getTime() + 86400000));
             }
 
             return loggedIn

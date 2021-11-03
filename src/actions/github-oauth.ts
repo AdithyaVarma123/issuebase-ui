@@ -4,7 +4,6 @@ export const githubOAuthLogin = (response: { error: any; }) => {
     const action = { type: SIGN_IN };
     let payload;
     if (typeof response === 'undefined' || response.error) {
-        //If login fails
         payload = null;
     } else {
         payload = response;

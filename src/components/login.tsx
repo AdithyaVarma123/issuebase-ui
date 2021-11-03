@@ -5,25 +5,38 @@ import {
     Card,
     CardActions,
     CardContent,
-    createStyles, Divider, FormControl,
-    Grid, IconButton, InputAdornment,
+    Divider,
+    FormControl,
+    Grid,
+    IconButton,
+    InputAdornment,
     InputLabel,
     OutlinedInput,
     TextField,
     Theme,
     Typography,
-} from '@material-ui/core';
-import {makeStyles} from '@material-ui/core/styles';
-import {Visibility, VisibilityOff} from '@material-ui/icons';
-import {GoogleLogin} from 'react-google-login';
+} from '@mui/material';
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import {Visibility, VisibilityOff} from '@mui/icons-material';
+import {GoogleLogin, useGoogleLogout} from 'react-google-login';
 import {FcGoogle} from 'react-icons/fc';
 import LoginGithub from './github/login-github';
 import {googleOAuthLogin} from '../actions/google-oauth';
-import { showAlert } from '../actions/alert';
-import {useDispatch} from 'react-redux';
+import {showAlert} from '../actions/alert';
+import {useDispatch, useSelector} from 'react-redux';
 import {githubOAuthLogin} from '../actions/github-oauth';
-import {checkUserName, googleLoginForIssueBase} from '../actions/oauth';
-import RefreshIcon from '@material-ui/icons/Refresh';
+import {
+    autoLogin,
+    checkUserName,
+    createUser,
+    githubLoginForIssueBase,
+    googleLoginForIssueBase,
+    oauthLogin
+} from '../actions/oauth';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import {AUTO_LOGIN, SIGN_IN} from '../types';
+import {Cookie} from '../reducers/cookie';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -50,6 +63,10 @@ const useStyles = makeStyles((theme: Theme) =>
             marginTop: '1em',
             marginBottom: '1em'
         },
+        marginX: {
+            marginRight: '1em',
+            marginLeft: '1em'
+        },
         thickDivider: {
             height: 3
         },
@@ -60,42 +77,144 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface State {
-    amount: string;
     password: string;
-    weight: string;
-    weightRange: string;
+    confirmPassword: string;
+    passwordErr: boolean;
+    email: string;
     showPassword: boolean;
     phone: string;
     phoneCode: string;
+    name: string;
 }
 
 enum PageState {
     Login,
-    NewUser
+    NewUser,
+    SignUp
 }
 
 function Login() {
     const classes = useStyles();
     const dispatch = useDispatch();
-    const [pageState, setPageState] = React.useState<PageState>(PageState.Login)
-    const [values, setValues] = React.useState<State>({
-        amount: '',
+    const [pageState, setPageState] = React.useState<PageState>(PageState.Login);
+
+    const initValueState = {
         password: '',
-        weight: '',
-        weightRange: '',
+        confirmPassword: '',
         showPassword: false,
+        passwordErr: false,
         phone: '',
-        phoneCode: ''
-    });
+        phoneCode: '',
+        email: '',
+        name: ''
+    };
+    const [values, setValues] = React.useState<State>(initValueState);
+
     let title;
     const [usernameInput, setUsernameInput] = React.useState<string>('');
     let [usernameError, setUsernameError] = React.useState<boolean>(false);
+
     let cardContent;
-    const [dataState, setDataState] = React.useState<any>();
+    const [dataState, setDataState] = React.useState<any>({ githubState: false, oauthState: false });
+    // @ts-ignore
+    const autoLoginSelector = useSelector(state => state.autoLogin);
+    // @ts-ignore
+    const auth = useSelector(state => state.auth);
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+    if (autoLoginSelector.method === 'github' && !auth.loggedIn && !dataState.githubState) {
+        setDataState({ ...dataState, githubState: true });
+        (async () => {
+            const res = await autoLogin(autoLoginSelector.tokens, 'github', autoLoginSelector.tokens.github_access_token);
+            if (typeof res === 'object') {
+                const temp: {
+                    payload: {
+                        profileObj: any
+                    },
+                    tokens: {
+                        id_token: string,
+                        access_token: string,
+                        refresh_token: string,
+                        github_access_token: string
+                    },
+                    type: string,
+                    mode: string
+                } = {
+                    payload: {
+                        profileObj: undefined
+                    },
+                    tokens: {
+                        id_token: '',
+                        access_token: '',
+                        refresh_token: '',
+                        github_access_token: ''
+                    },
+                    type: SIGN_IN,
+                    mode: 'github'
+                };
+                temp.tokens = {
+                    id_token: res.id_token,
+                    access_token: res.access_token,
+                    refresh_token: res.refresh_token,
+                    github_access_token: res.github_access_token
+                };
+                temp.payload.profileObj = {
+                    username: res.username,
+                    imageUrl: res.avatar_url
+                };
+                dispatch(temp);
+            }
+            else {
+                Cookie.remove(AUTO_LOGIN);
+                setDataState({ ...dataState, githubState: false });
+            }
+        })();
+    }
+
+    if (autoLoginSelector.method === 'oauth' && !auth.loggedIn && !dataState.oauthState) {
+        setDataState({ ...dataState, oauthState: true });
+        (async () => {
+            const res = await autoLogin(autoLoginSelector.tokens, 'oauth');
+            if (typeof res === 'object') {
+                const temp: {
+                    payload: {
+                        profileObj: any
+                    },
+                    tokens: {
+                        id_token: string,
+                        access_token: string,
+                        refresh_token: string
+                    },
+                    type: string,
+                    mode: string
+                } = {
+                    payload: {
+                        profileObj: undefined
+                    },
+                    tokens: {
+                        id_token: '',
+                        access_token: '',
+                        refresh_token: ''
+                    },
+                    type: SIGN_IN,
+                    mode: 'oauth'
+                };
+                temp.tokens = {
+                    id_token: res.id_token,
+                    access_token: res.access_token,
+                    refresh_token: res.refresh_token
+                };
+                temp.payload.profileObj = {};
+                dispatch(temp);
+            }
+            else {
+                Cookie.remove(AUTO_LOGIN);
+                setDataState({ ...dataState, oauthState: false });
+            }
+        })();
+    }
 
     const handleChange = (prop: keyof State) => (event: React.ChangeEvent<HTMLInputElement>) => {
-        setValues({ ...values, [prop]: event.target.value });
-
         switch (prop) {
             case 'phoneCode': {
                 if (!(/^\d+$/.test(event.target.value))) {
@@ -104,7 +223,6 @@ function Login() {
                             message: 'Enter a valid phone code!'
                         })
                     )
-                    return;
                 }
                 break;
             }
@@ -115,11 +233,16 @@ function Login() {
                             message: 'Enter a valid phone number!'
                         })
                     )
-                    return;
                 }
                 break;
             }
+            case 'confirmPassword': {
+                setValues({ ...values, [prop]: event.target.value, passwordErr: values.password !== event.target.value });
+                return;
+            }
         }
+
+        setValues({ ...values, [prop]: event.target.value });
     };
 
     const handleClickShowPassword = () => {
@@ -131,7 +254,25 @@ function Login() {
     }
 
     const responseGoogle = async (response: any, skip = false) => {
+        if (!autoLoginSelector.autoLogin) {
+            return;
+        }
+
         let temp = dataState;
+        if (autoLoginSelector.hasOwnProperty("method")) {
+            temp = googleOAuthLogin(response);
+            temp.mode = 'google';
+            temp.tokens = await autoLogin(autoLoginSelector.tokens, 'google', temp.payload.tokenObj.access_token);
+            setDataState(temp)
+            dispatch(temp)
+            dispatch(
+                showAlert({
+                    message: 'Successfully logged in!'
+                })
+            );
+            return;
+        }
+
         if (!skip) {
             temp = googleOAuthLogin(response);
             setDataState(temp)
@@ -140,7 +281,8 @@ function Login() {
             temp.username = usernameInput;
             temp.phone = values.phoneCode + values.phone;
         }
-        const res: any = await googleLoginForIssueBase(temp)
+        const res: any = await googleLoginForIssueBase(temp);
+        temp.mode = 'google';
         if (res.state === 'new_user') {
             setPageState(PageState.NewUser);
             return;
@@ -165,10 +307,28 @@ function Login() {
         );
     }
 
-    const handleGithubAtLogin = async (user: any) => {
-        const res = await fetch(`https://github.com/login/oauth/${user.code}`);
-        return;
-        dispatch(githubOAuthLogin(user));
+    const handleGithubAtLogin = async (user: any, skip = false) => {
+        let temp = dataState;
+        if (!skip) {
+            temp = githubOAuthLogin(user)
+            temp.code = user.code;
+            temp.mode = 'github';
+            setDataState(temp)
+        }
+        else {
+            temp.username = usernameInput;
+            temp.phone = values.phoneCode + values.phone;
+        }
+        const res: any = await githubLoginForIssueBase(temp)
+        if (res.state === 'new_user') {
+            setPageState(PageState.NewUser);
+            return;
+        } else {
+            temp.tokens = res.tokens;
+            temp.payload.profileObj = res.user;
+            setDataState(temp)
+        }
+        dispatch(temp)
         dispatch(
             showAlert({
                 message: 'Successfully logged in!'
@@ -214,7 +374,7 @@ function Login() {
         setUsernameError(await checkUserName(data));
     };
 
-    const submitNewUser = () => {
+    const submitNewUser = async () => {
         if (values.phone.length !== 10) {
             dispatch(
                 showAlert({
@@ -242,111 +402,297 @@ function Login() {
             return;
         }
 
-        responseGoogle(undefined, true);
+        if (pageState === PageState.SignUp) {
+
+            if (values.password !== values.confirmPassword) {
+                dispatch(
+                    showAlert({
+                        message: 'Password and confirm password field must match!'
+                    })
+                )
+                return;
+            }
+
+            if (!(emailRegex.test(values.email))) {
+                dispatch(
+                    showAlert({
+                        message: 'Enter a valid email address!'
+                    })
+                )
+                return;
+            }
+
+            const res = await createUser(values.email, values.password, values.phoneCode + values.phone, usernameInput, values.name);
+
+            // @ts-ignore
+            if (res.hasOwnProperty('error')) {
+                dispatch(
+                    showAlert({
+                        // @ts-ignore
+                        message: res.message
+                    })
+                )
+            }
+            else {
+                dispatch(
+                    showAlert({
+                        // @ts-ignore
+                        message: res.message
+                    })
+                )
+                setValues(initValueState);
+                setUsernameInput("");
+                setPageState(PageState.Login);
+            }
+            return;
+        }
+
+        switch (dataState.mode) {
+            case 'google': {
+                return responseGoogle(undefined, true);
+            }
+            case 'github': {
+                return handleGithubAtLogin(undefined, true);
+            }
+        }
     };
 
-    if (pageState === PageState.Login) {
-        title = 'Login';
-        cardContent = <Grid item xs={12}>
-            <form noValidate autoComplete="off">
-                <Grid container spacing={3} direction="row">
-                    <Grid item xs={12} className={classes.center}>
-                        <TextField id="email" label="Email" variant="outlined" className={classes.formInput}/>
-                    </Grid>
-                    <Grid item xs={12} className={classes.center}>
-                        <FormControl className={classes.formInput} variant="outlined">
-                            <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                            <OutlinedInput
-                                id="outlined-adornment-password"
-                                type={values.showPassword ? 'text' : 'password'}
-                                value={values.password}
-                                onChange={handleChange('password')}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label="toggle password visibility"
-                                            onClick={handleClickShowPassword}
-                                            onMouseDown={handleMouseDownPassword}
-                                            edge="end"
-                                        >
-                                            {values.showPassword ? <Visibility /> : <VisibilityOff />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                                labelWidth={70}
-                            />
-                        </FormControl>
-                    </Grid>
-                </Grid>
-                <Grid item xs={12} className={clsx(classes.center, classes.marginTop)}>
-                    <Button variant="contained" color="primary" className={classes.formInput}>Login</Button>
-                </Grid>
-            </form>
+    const standardLogin = async () => {
+        if (!(emailRegex.test(values.email))) {
+            dispatch(
+                showAlert({
+                    message: 'Please enter a valid email address!'
+                })
+            )
+            return;
+        }
 
-            <Grid container alignItems="center" spacing={3} className={classes.marginY}>
-                <Grid item xs>
-                    <Divider className={classes.thickDivider}/>
-                </Grid>
-                <Grid item>
-                    <Typography>or log in with</Typography>
-                </Grid>
-                <Grid item xs>
-                    <Divider className={classes.thickDivider}/>
-                </Grid>
-            </Grid>
+        if (values.password.length === 0) {
+            dispatch(
+                showAlert({
+                    message: 'Please enter a valid password!'
+                })
+            )
+            return;
+        }
 
-            <div className={classes.center}>
-                <GoogleLogin
-                    clientId="349792543381-qee13qjia4l0iddd6bu7d29mi88qmm6s.apps.googleusercontent.com"
-                    buttonText="Login"
-                    render={renderProps => (
-                        <Button onClick={renderProps.onClick} disabled={renderProps.disabled} variant="contained"
-                                startIcon={<FcGoogle/>} style={{marginRight: '1em'}}>Google</Button>
-                    )}
-                    onSuccess={responseGoogle}
-                    onFailure={failureGoogle}
-                    isSignedIn={true}
-                    cookiePolicy={'single_host_origin'}
-                />
-                <LoginGithub
-                    clientId="cda139b5c412fe46a467"
-                    onSuccess={handleGithubAtLogin}
-                    onFailure={handleGithubAtFailure}
-                    buttonText="Github"
-                />
-            </div>
-        </Grid>
-    }
-    else {
-        title = 'Setup';
-        cardContent = <Grid item xs={12}>
-            <form noValidate autoComplete="off">
-                <Grid container spacing={3} direction="row">
-                    <Grid item xs={12} className={classes.center}>
-                        <TextField id="username" label="Username" variant="outlined" error={usernameError}
-                                   className={classes.formInput}
-                                   value={usernameInput}
-                                   onChange={handleUsernameChange}/>
+        const res = await oauthLogin(values.email, values.password);
+
+        // @ts-ignore
+        if (res.hasOwnProperty('error')) {
+            dispatch(
+                showAlert({
+                    // @ts-ignore
+                    message: res.message
+                })
+            )
+        }
+        else {
+            dispatch({
+                type: SIGN_IN,
+                // @ts-ignore
+                tokens: res.tokens,
+                mode: 'oauth',
+                payload: { profileObj: {} }
+            })
+        }
+    };
+
+    const { signOut } = useGoogleLogout({
+        // @ts-ignore
+        onFailure: failureGoogle,
+        // @ts-ignore
+        onLogoutSuccess: () => {setPageState(PageState.Login)},
+        clientId: "349792543381-qee13qjia4l0iddd6bu7d29mi88qmm6s.apps.googleusercontent.com",
+        isSignedIn: true
+    });
+
+    const cancelNewUserOrSignUp = () => {
+        if (pageState === PageState.SignUp) {
+            setValues(initValueState);
+            setUsernameInput("");
+        }
+        else {
+            switch (dataState.mode) {
+                case 'google': {
+                    signOut();
+                    break;
+                }
+            }
+        }
+        setPageState(PageState.Login);
+    };
+
+    const passwordField = (
+        <FormControl className={classes.formInput} variant="outlined">
+            <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
+            <OutlinedInput
+                label="Password"
+                id="standard-adornment-password"
+                type={values.showPassword ? 'text' : 'password'}
+                value={values.password}
+                onChange={handleChange('password')}
+                endAdornment={
+                    <InputAdornment position="end">
                         <IconButton
-                            color="primary"
-                            aria-label='refresh'
-                            onClick={() => {refreshUsernames()}}
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
                         >
-                            <RefreshIcon />
+                            {values.showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
+                    </InputAdornment>
+                }
+            />
+        </FormControl>
+    );
+
+    const SignUp = (
+        <>
+            <Grid item xs={12} className={classes.center}>
+                <TextField id="name" label="Name" variant="outlined" className={classes.formInput}
+                           value={values.name}
+                           onChange={handleChange('name')}
+                />
+            </Grid>
+            <Grid item xs={12} className={classes.center}>
+                <TextField id="email_s" label="Email" variant="outlined" className={classes.formInput}
+                       value={values.email}
+                       onChange={handleChange('email')}
+                />
+            </Grid>
+            <Grid item xs={12} className={classes.center}>
+                {passwordField}
+            </Grid>
+            <Grid item xs={12} className={classes.center}>
+                <FormControl className={classes.formInput} variant="outlined">
+                    <InputLabel htmlFor="standard-adornment-confirm-password">Confirm password</InputLabel>
+                    <OutlinedInput
+                        label="Confirm password"
+                        id="standard-adornment-confirm-password"
+                        type={values.showPassword ? 'text' : 'password'}
+                        value={values.confirmPassword}
+                        error={values.passwordErr}
+                        onChange={handleChange('confirmPassword')}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={handleClickShowPassword}
+                                    onMouseDown={handleMouseDownPassword}
+                                >
+                                    {values.showPassword ? <Visibility /> : <VisibilityOff />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                </FormControl>
+            </Grid>
+        </>
+    );
+
+    switch (pageState) {
+        case PageState.Login: {
+            title = 'Login';
+            cardContent = <Grid item xs={12}>
+                <form noValidate autoComplete="off">
+                    <Grid container spacing={3} direction="row">
+                        <Grid item xs={12} className={classes.center}>
+                            <TextField id="email" label="Email" variant="outlined" className={classes.formInput} value={values.email} onChange={handleChange('email')}/>
+                        </Grid>
+                        <Grid item xs={12} className={classes.center}>
+                            { passwordField }
+                        </Grid>
                     </Grid>
-                    <Grid item xs={2} className={classes.center}>
-                        <TextField id="code" label="Code" variant="outlined" value={values.phoneCode} onChange={handleChange('phoneCode')}/>
+                    <Grid item xs={12} className={clsx(classes.center, classes.marginTop)}>
+                        <Button variant="contained" color="primary" className={classes.formInput} onClick={standardLogin}>Login</Button>
                     </Grid>
-                    <Grid item xs={10} className={classes.center}>
-                        <TextField id="phone" label="Phone" variant="outlined" className={classes.phone} value={values.phone} onChange={handleChange('phone')}/>
+                </form>
+
+                <Grid container alignItems="center" spacing={3} className={classes.marginY}>
+                    <Grid item xs>
+                        <Divider className={classes.thickDivider}/>
                     </Grid>
-                    <Grid item xs={12} className={classes.center}>
-                        <Button variant="contained" color="primary" onClick={submitNewUser}>Continue</Button>
+                    <Grid item>
+                        <Typography>or log in with</Typography>
+                    </Grid>
+                    <Grid item xs>
+                        <Divider className={classes.thickDivider}/>
                     </Grid>
                 </Grid>
-            </form>
-        </Grid>
+
+                <div className={classes.center}>
+                    <GoogleLogin
+                        clientId="349792543381-qee13qjia4l0iddd6bu7d29mi88qmm6s.apps.googleusercontent.com"
+                        buttonText="Login"
+                        render={renderProps => (
+                            <Button onClick={renderProps.onClick} disabled={renderProps.disabled} variant="contained"
+                                    startIcon={<FcGoogle/>} style={{marginRight: '1em'}}>Google</Button>
+                        )}
+                        onSuccess={responseGoogle}
+                        onFailure={failureGoogle}
+                        isSignedIn={true}
+                        cookiePolicy={'single_host_origin'}
+                    />
+                    <LoginGithub
+                        clientId="cda139b5c412fe46a467"
+                        onSuccess={handleGithubAtLogin}
+                        onFailure={handleGithubAtFailure}
+                        buttonText="Github"
+                    />
+                    <Button variant="contained" onClick={() => { setPageState(PageState.SignUp) }}>
+                        Sign up
+                    </Button>
+                </div>
+            </Grid>
+            break;
+        }
+        case PageState.SignUp:
+        case PageState.NewUser: {
+            title = 'Setup';
+            cardContent = <Grid item xs={12}>
+                <form noValidate autoComplete="off">
+                    <Grid container spacing={3} direction="row">
+                        {SignUp}
+                        <Grid item xs={12} className={classes.center}>
+                            <FormControl className={classes.formInput} variant="outlined">
+                                <InputLabel htmlFor="standard-adornment-username">Username</InputLabel>
+                                <OutlinedInput
+                                    label="Username"
+                                    id="standard-adornment-username"
+                                    type="text"
+                                    className={classes.formInput}
+                                    value={usernameInput}
+                                    error={usernameError}
+                                    onChange={handleUsernameChange}
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label='refresh'
+                                                onClick={() => {refreshUsernames()}}
+                                                size="large">
+                                                <RefreshIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={2} className={classes.center}>
+                            <TextField id="code" label="CC" variant="outlined" value={values.phoneCode} onChange={handleChange('phoneCode')}/>
+                        </Grid>
+                        <Grid item xs={10} className={classes.center}>
+                            <TextField id="phone" label="Phone" variant="outlined" className={classes.phone} value={values.phone} onChange={handleChange('phone')}/>
+                        </Grid>
+                        <Grid item xs={12} className={classes.center}>
+                            <Button variant="contained" className={classes.marginX} color="error" onClick={cancelNewUserOrSignUp}>Cancel</Button>
+                            <Button variant="contained" color="primary" onClick={submitNewUser} className={classes.marginX}>Continue</Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Grid>
+            break;
+        }
     }
 
     return (
@@ -369,7 +715,6 @@ function Login() {
                         </Grid>
                     </CardContent>
                     <CardActions>
-                        {/*{<Button>Sign up</Button>}*/}
                     </CardActions>
                 </Card>
             </Grid>

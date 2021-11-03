@@ -1,12 +1,12 @@
 import React from 'react';
-import {withStyles} from '@material-ui/core/styles';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
+import withStyles from '@mui/styles/withStyles';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import {
 	TextField,
 	Theme,
 	Typography,
 	Switch
-} from '@material-ui/core';
+} from '@mui/material';
 import {connect} from 'react-redux';
 
 

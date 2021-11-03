@@ -1,7 +1,8 @@
 import React from 'react';
-import {makeStyles} from '@material-ui/core/styles';
-import {createStyles, Grid, Paper, TextField, Theme, Chip, Button, IconButton} from '@material-ui/core';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
+import makeStyles from '@mui/styles/makeStyles';
+import { Grid, Paper, TextField, Theme, Chip, Button, IconButton } from '@mui/material';
+import createStyles from '@mui/styles/createStyles';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {useHistory} from 'react-router-dom';
 import {useDispatch} from 'react-redux';
 import {showAlert} from '../../actions/alert';
@@ -69,7 +70,7 @@ export default function CreateProject() {
                         ))}
                         <div className={classes.userSelection}>
                             <TextField id="member-email" label="Assign " variant="outlined" className={classes.userSelectionInput}/>
-                            <IconButton>
+                            <IconButton size="large">
                                 <AddCircleIcon/>
                             </IconButton>
                         </div>
@@ -82,5 +83,5 @@ export default function CreateProject() {
                 </Grid>
             </Grid>
         </div>
-    )
+    );
 }

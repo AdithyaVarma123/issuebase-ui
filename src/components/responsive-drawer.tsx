@@ -1,18 +1,38 @@
 import React from 'react';
 import clsx from 'clsx';
-import MenuIcon from '@material-ui/icons/Menu';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import SearchIcon from '@material-ui/icons/Search';
-import SettingsIcon from '@material-ui/icons/Settings';
-import BugReportIcon from '@material-ui/icons/BugReport';
-import EqualizerIcon from '@material-ui/icons/Equalizer';
-import HomeIcon from '@material-ui/icons/Home';
-import {makeStyles} from '@material-ui/core/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import SearchIcon from '@mui/icons-material/Search';
+import SettingsIcon from '@mui/icons-material/Settings';
+import BugReportIcon from '@mui/icons-material/BugReport';
+import EqualizerIcon from '@mui/icons-material/Equalizer';
+import HomeIcon from '@mui/icons-material/Home';
+import makeStyles from '@mui/styles/makeStyles';
 import {
     alpha,
-    AppBar, Avatar, IconButton, createStyles, Divider, Drawer, Hidden, InputBase, List, ListItem, ListItemIcon,
-    ListItemText, Menu, MenuItem, Switch, Theme, Toolbar, Typography, FormControlLabel, FormGroup, useTheme, Button
-} from '@material-ui/core';
+    AppBar,
+    Avatar,
+    IconButton,
+    Divider,
+    Drawer,
+    Hidden,
+    InputBase,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Switch,
+    Theme,
+    Toolbar,
+    Typography,
+    FormControlLabel,
+    FormGroup,
+    useTheme,
+    Button,
+} from '@mui/material';
+import createStyles from '@mui/styles/createStyles';
 import {useDispatch, useSelector} from 'react-redux';
 import {toggleTheme} from '../actions/theme';
 import {googleOAuthLogout} from '../actions/google-oauth';
@@ -26,6 +46,8 @@ import CreateProject from '../pages/projects/create-project';
 import CreateIssue from '../pages/issues/create-issue';
 import PageTitle from './page-title';
 import UserSettings from "../pages/user-settings";
+import {AUTO_LOGIN, SIGN_OUT} from '../types';
+import {Cookie} from '../reducers/cookie';
 
 const drawerWidth = 200;
 
@@ -100,7 +122,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         inputInput: {
             padding: theme.spacing(1, 1, 1, 0),
-            paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+            paddingLeft: `calc(1em + ${theme.spacing(4)})`,
             transition: theme.transitions.create('width'),
             width: '100%',
             [theme.breakpoints.up('sm')]: {
@@ -124,7 +146,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function ResponsiveDrawer() {
     // @ts-ignore
-    const { auth, theme } = useSelector((state) => state);
+    const { auth, theme, autoLogin } = useSelector((state) => state);
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -170,6 +192,20 @@ export default function ResponsiveDrawer() {
         clientId: "349792543381-qee13qjia4l0iddd6bu7d29mi88qmm6s.apps.googleusercontent.com",
         isSignedIn: true
     });
+
+    const logout = () => {
+        Cookie.remove(AUTO_LOGIN);
+        switch (autoLogin.method) {
+            case 'google': {
+                signOut();
+                break;
+            }
+            case 'github': {
+                dispatch({type: SIGN_OUT});
+                break;
+            }
+        }
+    };
 
     const pages = [
         {
@@ -249,7 +285,7 @@ export default function ResponsiveDrawer() {
                     control={
                         <Switch
                             color='default'
-                            checked={theme.palette.type === 'dark'}
+                            checked={theme.palette.mode === 'dark'}
                             onChange={() => dispatch(toggleTheme())}
                             inputProps={{ 'aria-label': 'primary checkbox' }}
                             name='themeToggle'
@@ -272,7 +308,7 @@ export default function ResponsiveDrawer() {
                             edge="start"
                             onClick={handleDrawerToggle}
                             className={classes.menuButton}
-                        >
+                            size="large">
                             <MenuIcon />
                         </IconButton>
                         <Typography variant="h6" noWrap className={classes.title}>
@@ -291,7 +327,12 @@ export default function ResponsiveDrawer() {
                                 inputProps={{ 'aria-label': 'search' }}
                             />
                         </div>
-                        <IconButton onClick={avatarMenu} aria-controls="avatar-menu" aria-haspopup="true" className={classes.marginY}>
+                        <IconButton
+                            onClick={avatarMenu}
+                            aria-controls="avatar-menu"
+                            aria-haspopup="true"
+                            className={classes.marginY}
+                            size="large">
                             <Avatar src={auth.user.imageUrl} />
                         </IconButton>
                         <Menu
@@ -302,7 +343,7 @@ export default function ResponsiveDrawer() {
                             onClose={removeElement}
                         >
                             <PageMenu close={removeElement}/>
-                            <MenuItem onClick={signOut}>Logout</MenuItem>
+                            <MenuItem onClick={logout}>Logout</MenuItem>
                         </Menu>
                     </Toolbar>
                 </AppBar>
@@ -323,7 +364,7 @@ export default function ResponsiveDrawer() {
                             {drawer}
                         </Drawer>
                     </Hidden>
-                    <Hidden xsDown implementation="css">
+                    <Hidden smDown implementation="css">
                         <Drawer
                             classes={{
                                 paper: classes.drawerPaper,

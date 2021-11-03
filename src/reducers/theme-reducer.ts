@@ -1,6 +1,6 @@
 import { TOGGLE_THEME } from '../types';
-import { createTheme } from '@material-ui/core/styles';
-import {blue, green, lightBlue, pink, red, yellow} from '@material-ui/core/colors';
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
+import {blue, green, lightBlue, pink, red, yellow} from '@mui/material/colors';
 /*If no other key-val pairs are set on the custom theme it retains
 all the default MUI theme values. So for a simple switch to dark mode this
 will suffice.
@@ -11,24 +11,16 @@ dark mode main color: #fff
 */
 
 let INITIAL_STATE = {};
-const LIGHT_MODE_STATE = createTheme({
+const LIGHT_MODE_STATE = createTheme(adaptV4Theme({
     palette: {
-        type: 'light',
-        primary: blue,
-        secondary: pink,
-        error: red,
-        warning: yellow,
-        info: lightBlue,
-        success: green
+        mode: 'light'
     }
-});
-const DARK_MODE_STATE = createTheme({
+}));
+const DARK_MODE_STATE = createTheme(adaptV4Theme({
     palette: {
-        type: 'dark',
-        primary: blue,
-        secondary: pink,
+        mode: 'dark'
     }
-});
+}));
 
 /* Choose the default theme as the users system preferences */
 let matched = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -44,7 +36,7 @@ const themeReducer = (state = INITIAL_STATE, action: { type: any; }) => {
                 opposite of whatever type is
             */
             // @ts-ignore
-            return state.palette.type === 'light'
+            return state.palette.mode === 'light'
                 ? { ...DARK_MODE_STATE }
                 : { ...LIGHT_MODE_STATE };
         default:
