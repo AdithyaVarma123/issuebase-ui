@@ -86,6 +86,9 @@ export async function githubLoginForIssueBase(data: any) {
 }
 
 export async function autoLogin(tokens: any, method: 'github' | 'google' | 'oauth', access_token ?: string) {
+    if (tokens === undefined) {
+        return false;
+    }
     const params = new URLSearchParams();
     params.set("method", method);
     params.set("id_token", tokens.id_token);
