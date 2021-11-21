@@ -1,5 +1,4 @@
 import React from 'react';
-import withStyles from '@mui/styles/withStyles';
 import {
     Badge,
     Card,
@@ -9,12 +8,15 @@ import {
     ImageList,
     IconButton,
     Theme,
-    Typography
+    Typography,
+    Button
 } from '@mui/material';
 import { Pagination } from '@mui/material';
-import {connect} from 'react-redux';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import FormDialog from "./create";
+import {connect} from "react-redux";
+import {withStyles} from "@mui/styles";
 
 const styles = (theme: Theme) => ({
     spinner: {
@@ -48,6 +50,7 @@ const mapStateToProps = (state: { auth: any; }) => ({
 
 
 class Project extends React.Component {
+
     state: { loading: boolean; projects: { name: string; issues: number; head: string; }[]; page: number; };
 
     constructor(props: any) {
@@ -73,9 +76,15 @@ class Project extends React.Component {
         await this.componentDidMount();
     }
 
+    async getData() {
+        fetch('http://localhost:8080/projects/viewProject')
+    }
+
     render() {
         // @ts-ignore
         const { classes } = this.props;
+        // @ts-ignore
+        console.log(this.props);
         return (
             <div>
                 {this.state.loading ? (
@@ -112,9 +121,13 @@ class Project extends React.Component {
                 <div className={classes.pagination}>
                     <Pagination count={10} color="secondary" onChange={this.setPage}/>
                 </div>
+                <div>
+                    <FormDialog></FormDialog>
+                </div>
             </div>
         );
     }
 }
+
 
 export default connect(mapStateToProps)(withStyles(styles)(Project));
