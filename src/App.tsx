@@ -8,11 +8,21 @@ import Alert from './components/alert';
 import ResponsiveDrawer from './components/responsive-drawer';
 import Login from './components/login';
 import {AUTO_LOGIN} from './types';
+import {toggleTheme} from './actions/theme';
 
 function App() {
     // @ts-ignore
     const auth = useSelector((state) => state.auth)
-    useDispatch()({ type: AUTO_LOGIN });
+    // @ts-ignore
+    const theme = useSelector(state => state.theme);
+
+    const dispatch = useDispatch();
+    dispatch({ type: AUTO_LOGIN });
+
+    if (localStorage.getItem('theme') !== theme.palette.mode) {
+        localStorage.setItem('theme', theme.palette.mode === 'light' ? 'dark' : 'light');
+        dispatch(toggleTheme());
+    }
     return (
         <StyledEngineProvider injectFirst>
             <ThemeProvider>

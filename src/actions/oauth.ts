@@ -24,7 +24,8 @@ export async function googleLoginForIssueBase(data: any) {
                 id_token: data.id_token,
                 access_token: data.access_token,
                 refresh_token: data.refresh_token
-            }
+            },
+            username: data.username
         };
     }
     catch(err) {
@@ -77,7 +78,8 @@ export async function githubLoginForIssueBase(data: any) {
             user: {
                 imageUrl: data.imageUrl,
                 username: data.username
-            }
+            },
+            username: data.username
         };
     }
     catch(err) {
@@ -162,10 +164,15 @@ export async function oauthLogin(email: string, password: string) {
         params.set("code", data.code);
         res = await fetch(`${process.env.REACT_APP_BASE_URL}/oauth/token?${params.toString()}`);
 
-        const tokens: { id_token: string, access_token: string, refresh_token: string } = await res.json();
+        const dataRes: { id_token: string, access_token: string, refresh_token: string, username: string } = await res.json();
 
         if (res.status === 200) {
-            return { tokens };
+            return { tokens: {
+                id_token: dataRes.id_token,
+                    access_token: dataRes.access_token,
+                    refresh_token: dataRes.refresh_token,
+                },
+            username: dataRes.username};
         }
     }
     catch(err) {
