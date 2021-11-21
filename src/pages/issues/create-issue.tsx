@@ -129,9 +129,7 @@ export default function CreateIssue() {
                     body: state.body,
                 })
             });
-
-            const res = await resp.json();
-            if (res.status !== 204) {
+            if (resp.status !== 200) {
                 dispatch(showAlert({
                     message: 'Error creating issue!',
                 }));
