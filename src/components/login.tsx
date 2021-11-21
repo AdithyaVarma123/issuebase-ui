@@ -122,7 +122,8 @@ function Login() {
     const auth = useSelector(state => state.auth);
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
-    if (autoLoginSelector.method === 'github' && !auth.loggedIn && !dataState.githubState) {
+    if (autoLoginSelector.method === 'github' && !auth.loggedIn && !dataState.githubState && autoLoginSelector.tokens !== undefined
+    && autoLoginSelector.tokens.github_access_token !== undefined) {
         setDataState({ ...dataState, githubState: true });
         (async () => {
             const res = await autoLogin(autoLoginSelector.tokens, 'github', autoLoginSelector.tokens.github_access_token);
@@ -137,6 +138,7 @@ function Login() {
                         refresh_token: string,
                         github_access_token: string
                     },
+                    username: string,
                     type: string,
                     mode: string
                 } = {
@@ -149,6 +151,7 @@ function Login() {
                         refresh_token: '',
                         github_access_token: ''
                     },
+                    username: '',
                     type: SIGN_IN,
                     mode: 'github'
                 };
@@ -158,6 +161,7 @@ function Login() {
                     refresh_token: res.refresh_token,
                     github_access_token: res.github_access_token
                 };
+                temp.username = res.username;
                 temp.payload.profileObj = {
                     username: res.username,
                     imageUrl: res.avatar_url
@@ -171,7 +175,7 @@ function Login() {
         })();
     }
 
-    if (autoLoginSelector.method === 'oauth' && !auth.loggedIn && !dataState.oauthState) {
+    if (autoLoginSelector.method === 'oauth' && !auth.loggedIn && !dataState.oauthState && autoLoginSelector.tokens !== undefined) {
         setDataState({ ...dataState, oauthState: true });
         (async () => {
             const res = await autoLogin(autoLoginSelector.tokens, 'oauth');
@@ -186,6 +190,7 @@ function Login() {
                         refresh_token: string
                     },
                     type: string,
+                    username: string,
                     mode: string
                 } = {
                     payload: {
@@ -196,6 +201,7 @@ function Login() {
                         access_token: '',
                         refresh_token: ''
                     },
+                    username: '',
                     type: SIGN_IN,
                     mode: 'oauth'
                 };
@@ -204,6 +210,7 @@ function Login() {
                     access_token: res.access_token,
                     refresh_token: res.refresh_token
                 };
+                temp.username = res.username;
                 temp.payload.profileObj = {};
                 dispatch(temp);
             }
@@ -262,7 +269,19 @@ function Login() {
         if (autoLoginSelector.hasOwnProperty("method")) {
             temp = googleOAuthLogin(response);
             temp.mode = 'google';
-            temp.tokens = await autoLogin(autoLoginSelector.tokens, 'google', temp.payload.tokenObj.access_token);
+            let res = await autoLogin(autoLoginSelector.tokens, 'google', temp.payload.tokenObj.access_token);
+            if (!res) {
+                dispatch(
+                    showAlert({
+                        message: 'An unknown error occurred!'
+                    })
+                );
+                return;
+            }
+            else {
+                temp.tokens = res.tokens;
+                temp.username = res.username;
+            }
             setDataState(temp)
             dispatch(temp)
             dispatch(
@@ -289,6 +308,7 @@ function Login() {
         }
         else {
             temp.tokens = res.tokens;
+            temp.username = res.username;
         }
         dispatch(temp)
         dispatch(
@@ -325,6 +345,7 @@ function Login() {
             return;
         } else {
             temp.tokens = res.tokens;
+            temp.username = res.username;
             temp.payload.profileObj = res.user;
             setDataState(temp)
         }
@@ -492,6 +513,8 @@ function Login() {
                 type: SIGN_IN,
                 // @ts-ignore
                 tokens: res.tokens,
+                // @ts-ignore
+                username: res.username,
                 mode: 'oauth',
                 payload: { profileObj: {} }
             })
@@ -547,7 +570,7 @@ function Login() {
         </FormControl>
     );
 
-    const SignUp = (
+    let SignUp = (
         <>
             <Grid item xs={12} className={classes.center}>
                 <TextField id="name" label="Name" variant="outlined" className={classes.formInput}
@@ -590,7 +613,6 @@ function Login() {
             </Grid>
         </>
     );
-
     switch (pageState) {
         case PageState.Login: {
             title = 'Login';
@@ -650,6 +672,9 @@ function Login() {
         case PageState.SignUp:
         case PageState.NewUser: {
             title = 'Setup';
+            if (dataState.mode === 'google' || dataState.mode === 'github') {
+                SignUp = <></>;
+            }
             cardContent = <Grid item xs={12}>
                 <form noValidate autoComplete="off">
                     <Grid container spacing={3} direction="row">

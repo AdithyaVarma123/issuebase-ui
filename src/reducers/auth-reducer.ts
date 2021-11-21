@@ -13,6 +13,7 @@ const authReducer = (state = INITIAL_STATE, action: {
         id_token: string,
         refresh_token: string
     };
+    username: string;
     type: any; payload: { tokenId: any; profileObj: any; }; }) => {
     switch (action.type) {
         case SIGN_IN: {
@@ -32,7 +33,8 @@ const authReducer = (state = INITIAL_STATE, action: {
                     },
                     tokens: {
                         ...action.tokens
-                    }
+                    },
+                    username: action.username
                 }
                 : { ...state, loggedIn, user: null };
         }
