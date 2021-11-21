@@ -4,7 +4,7 @@ import { Grid, Paper, TextField, Theme, Chip, Button, IconButton } from '@mui/ma
 import createStyles from '@mui/styles/createStyles';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {useHistory} from 'react-router-dom';
-import {useDispatch} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'
 import {showAlert} from '../../actions/alert';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -39,38 +39,95 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+interface State {
+    name: string;
+    users: string[];
+    temp: string;
+}
+
 export default function CreateProject() {
     const classes = useStyles();
     const history = useHistory();
     const dispatch = useDispatch();
+    const [state, setState] = React.useState<State>({
+        name: '',
+        users: [],
+        temp: ''
+    });
+    // @ts-ignore
+    const { auth } = useSelector((state) => state);
+    console.log(auth);
 
-    const members = ["ksindell0@cocolog-nifty.com","bstroban1@usgs.gov","kdavidovsky2@woothemes.com","ybisp3@jiathis.com","fducket4@washington.edu","bdegogay5@csmonitor.com"];
+    const setItem = (item: string, value: any) => {
+        setState({
+            ...state,
+            [item]: value.target.value
+        });
+    }
 
-    function submitForm() {
+    async function submitForm() {
+        const requestOptions = {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${auth.tokens.access_token}`
+            },
+            body: JSON.stringify({ project_name:state.name, users: state.users })
+        };
+        console.log(requestOptions);
+        try {
+            // @ts-ignore
+            const resp = await fetch(`${process.env.REACT_APP_BASE_URL}/projects/createProject`, requestOptions)
+            await resp.json();
+        }
+        catch(e) {}
         history.push('/projects');
         dispatch(showAlert({ message: 'Project created!' }));
+    }
+
+    const addItem = (item: string) => {
+        let data = state.temp.trim();
+        // @ts-ignore
+        if (data.length > 0 && state[item].indexOf(data) === -1) {
+            setState(
+                {
+                    ...state,
+                    // @ts-ignore
+                    [item]: [...state[item], data],
+                    temp: ''
+                }
+            );
+        }
+    }
+
+    const removeItem = (item: string, data: string) => {
+        setState({
+            ...state,
+            // @ts-ignore
+            [item]: state[item].filter(e => e !== data)
+        });
     }
 
     return (
         <div className={classes.root}>
             <Grid container spacing={2}>
                 <Grid item xs={2} />
-                <Grid item xs={4}>
-                    <TextField id="project-name" label="Project name" variant="outlined" className={classes.standardInput}/>
-                </Grid>
-                <Grid item xs={4}>
-                    <TextField id="repo-url" label="Repository url" variant="outlined" className={classes.standardInput} type="url" defaultValue="https://github.com/" inputProps={{ pattern: "https://github\.com/(.+)", }}/>
+                <Grid item xs={8}>
+                    <TextField id="project-name" label="Project name" variant="outlined" className={classes.standardInput}
+                    value={state.name} onChange={(e) => setItem('name', e)}/>
                 </Grid>
                 <Grid item xs={2} />
                 <Grid item xs={2} />
                 <Grid item xs={8}>
                     <Paper elevation={3} className={classes.user}>
-                        {members.map(member => (
-                            <Chip label={member} className={classes.userChip} onDelete={() => {}}/>
+                        {state.users.map(member => (
+                            <Chip label={member} className={classes.userChip} onDelete={() => removeItem('users', member)}/>
                         ))}
                         <div className={classes.userSelection}>
-                            <TextField id="member-email" label="Assign " variant="outlined" className={classes.userSelectionInput}/>
-                            <IconButton size="large">
+                            <TextField id="member-email" label="Assign " variant="outlined" className={classes.userSelectionInput}
+                                       value={state.temp} onChange={(e) => setItem('temp', e)}/>
+                            <IconButton size="large" onClick={() => addItem('users')}>
                                 <AddCircleIcon/>
                             </IconButton>
                         </div>

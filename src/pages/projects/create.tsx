@@ -26,12 +26,7 @@ export default function FormDialog() {
 	console.log(auth);
 	const handleCreate = async () => {
 
-		const requestOptions = {
-			method: 'PUT',
-			body: JSON.stringify({ project_name:name })
-		};
-		await fetch('http://localhost:8080/projects/createProject', requestOptions);
-		setOpen(false);
+
 	};
 
 

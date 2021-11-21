@@ -8,13 +8,11 @@ import {
     ImageList,
     IconButton,
     Theme,
-    Typography,
-    Button
+    Typography
 } from '@mui/material';
 import { Pagination } from '@mui/material';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import FormDialog from "./create";
 import {connect} from "react-redux";
 import {withStyles} from "@mui/styles";
 
@@ -120,9 +118,6 @@ class Project extends React.Component {
                 )}
                 <div className={classes.pagination}>
                     <Pagination count={10} color="secondary" onChange={this.setPage}/>
-                </div>
-                <div>
-                    <FormDialog></FormDialog>
                 </div>
             </div>
         );

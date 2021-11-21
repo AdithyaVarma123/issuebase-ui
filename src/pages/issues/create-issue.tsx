@@ -117,7 +117,7 @@ export default function CreateIssue() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${auth.token}`
+                    'Authorization': `Bearer ${auth.tokens.access_token}`
                 },
                 body: JSON.stringify({
                     project_id: state.project,
